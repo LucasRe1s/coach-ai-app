@@ -6,11 +6,21 @@ import Header from './Header.vue'
 import Footer from './Footer.vue'
 import Spinner from './Spinner.vue'
 
+const authStore = useAuthStore()
 const question = ref('')
 const answer = ref('')
 const error = ref('')
 const loading = ref(false)
-const authStore = useAuthStore()
+const showEditModal = ref(false)
+const editLoading = ref(false)
+const editError = ref('')
+const editForm = ref({
+  name: authStore.user?.name || '',
+  email: authStore.user?.email || '',
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
 
 async function askQuestion() {
   error.value = ''
@@ -37,9 +47,97 @@ async function askQuestion() {
     question.value = ''
   } catch (e) {
     error.value = 'Erro ao obter resposta. Tente novamente.'
-    console.error(e)
   } finally {
     loading.value = false
+  }
+}
+
+function openEditModal() {
+  showEditModal.value = true
+  editForm.value = {
+    name: authStore.user?.name || '',
+    email: authStore.user?.email || '',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+  editError.value = ''
+}
+
+function closeEditModal() {
+  showEditModal.value = false
+  editForm.value = {
+    name: '',
+    email: '',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+  editError.value = ''
+}
+
+// Função utilitária para decodificar o token JWT
+function getUserIdFromToken(token: string | null): string | null {
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.user_id || null;
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    return null;
+  }
+}
+
+async function updateProfile() {
+  editError.value = ''
+  
+  if (!editForm.value.name.trim() || !editForm.value.email.trim()) {
+    editError.value = 'Nome e email são obrigatórios.'
+    return
+  }
+  
+  if (editForm.value.newPassword && editForm.value.newPassword !== editForm.value.confirmPassword) {
+    editError.value = 'As senhas não conferem.'
+    return
+  }
+  
+  editLoading.value = true
+  
+  try {
+    const updateData: any = {
+      name: editForm.value.name,
+      email: editForm.value.email,
+      password: editForm.value.currentPassword || '' // Sempre enviar password
+    }
+    
+    if (editForm.value.newPassword) {
+      updateData.newPassword = editForm.value.newPassword
+    }
+    
+    // Extrai o id do usuário do token
+    const userId = getUserIdFromToken(authStore.token)
+    if (!userId) {
+      editError.value = 'Não foi possível identificar o usuário.'
+      return
+    }
+    
+    const response = await api.put(`/users/${userId}`, updateData, authStore.token || undefined)
+    
+    if (!response.ok) {
+      editError.value = response.data.message || 'Erro ao atualizar perfil.'
+      return
+    }
+    
+    // Atualiza os dados do usuário na store
+    if (response.data.user) {
+      authStore.user = response.data.user
+    }
+    
+    closeEditModal()
+  } catch (e) {
+    editError.value = 'Erro ao atualizar perfil. Tente novamente.'
+  } finally {
+    editLoading.value = false
   }
 }
 
@@ -52,6 +150,9 @@ async function askQuestion() {
     <main class="main-content">
       <div class="user-info">
         <h2>Assistente Musical</h2>
+        <button @click="openEditModal" class="edit-profile-btn">
+          <span>Editar Perfil</span>
+        </button>
       </div>
 
       <div class="form-card">
@@ -78,6 +179,86 @@ async function askQuestion() {
         <div v-if="answer" class="answer-box">{{ answer }}</div>
       </div>
     </main>
+
+    <!-- Modal de Edição de Perfil -->
+    <div v-if="showEditModal" class="modal-overlay" @click="closeEditModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>Editar Perfil</h3>
+          <button @click="closeEditModal" class="close-btn">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="edit-name">Nome</label>
+            <input 
+              id="edit-name"
+              type="text" 
+              v-model="editForm.name" 
+              placeholder="Seu nome"
+              :disabled="editLoading"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-email">Email</label>
+            <input 
+              id="edit-email"
+              type="email" 
+              v-model="editForm.email" 
+              placeholder="Seu email"
+              :disabled="editLoading"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-current-password">Senha Atual (opcional)</label>
+            <input 
+              id="edit-current-password"
+              type="password" 
+              v-model="editForm.currentPassword" 
+              placeholder="Senha atual"
+              :disabled="editLoading"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-new-password">Nova Senha (opcional)</label>
+            <input 
+              id="edit-new-password"
+              type="password" 
+              v-model="editForm.newPassword" 
+              placeholder="Nova senha"
+              :disabled="editLoading"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-confirm-password">Confirmar Nova Senha</label>
+            <input 
+              id="edit-confirm-password"
+              type="password" 
+              v-model="editForm.confirmPassword" 
+              placeholder="Confirme a nova senha"
+              :disabled="editLoading"
+            />
+          </div>
+          
+          <p v-if="editError" class="error-message">{{ editError }}</p>
+          
+          <div class="modal-actions">
+            <button @click="closeEditModal" :disabled="editLoading" class="cancel-btn">
+              Cancelar
+            </button>
+            <button @click="updateProfile" :disabled="editLoading" class="save-btn">
+              <Spinner v-if="editLoading" small />
+              <span v-if="editLoading">Salvando...</span>
+              <span v-else>Salvar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <Footer />
   </div>
@@ -374,6 +555,167 @@ body {
   /* Altura máxima antes de permitir scroll interno */
   overflow-y: auto;
   /* Permite scroll interno se necessário */
+}
+
+/* Botão Editar Perfil */
+.edit-profile-btn {
+  background-color: #c4a882;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.edit-profile-btn:hover {
+  background-color: #a08b5f;
+  transform: translateY(-1px);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1.5px solid #c4a882;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #ffdd00;
+  box-shadow: 0 0 0 2px rgba(196, 168, 130, 0.2);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: flex-end;
+}
+
+.cancel-btn {
+  background-color: #6c757d;
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.save-btn {
+  background-color: #c4a882;
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: #a08b5f;
+}
+
+.save-btn:disabled,
+.cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Responsividade */

@@ -23,7 +23,17 @@ export const api = {
         console.error('Resposta não OK:', response.status, response.statusText)
       }
       
-      const data = await response.json()
+      let data
+      try {
+        data = await response.json()
+      } catch (jsonError) {
+        // Se não conseguir fazer parse do JSON, retorna um objeto com a mensagem de erro
+        console.error('Erro ao fazer parse do JSON:', jsonError)
+        data = {
+          message: `Erro no servidor: ${response.status} ${response.statusText}`,
+          error: 'Invalid JSON response'
+        }
+      }
       
       return {
         ok: response.ok,
@@ -57,15 +67,17 @@ export const api = {
     })
   },
 
-  async get(endpoint: string, token?: string) {
+
+  async put(endpoint: string, body: any, token?: string) {
     const headers: Record<string, string> = {}
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
     }
 
     return this.request(endpoint, {
-      method: 'GET',
-      headers
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(body)
     })
   }
 } 
