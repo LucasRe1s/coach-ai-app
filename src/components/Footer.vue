@@ -5,9 +5,6 @@
 </template>
 
 <style scoped>
-
-
-/* Footer */
 .footer {
   padding: 1rem 0; /* Reduzido padding */
   text-align: center;

@@ -41,36 +41,19 @@ function goToLogin() {
 </template>
 
 <style scoped>
-:root {
-  --main-color: #c4a882;
-}
-
-/* Reset completo para evitar scroll */
-* {
-  box-sizing: border-box;
-}
-
-/* Fundo global */
-body {
-  background-color: #f5f7fa;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow: hidden; /* Força remoção de scroll global */
-}
-
 .landing-page {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Altura fixa da viewport */
+  height: 100vh;
+  /* Altura fixa da viewport */
   max-width: 1300px;
   margin: 0 auto;
   padding: 0 2rem;
   color: #111;
-  overflow: hidden; /* Remove scroll desnecessário */
-  position: fixed; /* Fixa a posição */
+  overflow: hidden;
+  /* Remove scroll desnecessário */
+  position: fixed;
+  /* Fixa a posição */
   top: 0;
   left: 50%;
   transform: translateX(-50%);
@@ -82,13 +65,17 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 0; /* Reduzido padding */
-  flex-shrink: 0; /* Evita que o header encolha */
-  min-height: 80px; /* Altura mínima fixa */
+  padding: 1.5rem 0;
+  /* Reduzido padding */
+  flex-shrink: 0;
+  /* Evita que o header encolha */
+  min-height: 80px;
+  /* Altura mínima fixa */
 }
 
 .logo {
-  font-size: 1.8rem; /* Reduzido tamanho */
+  font-size: 1.8rem;
+  /* Reduzido tamanho */
   color: #c4a882;
   font-weight: 500;
   text-transform: uppercase;
@@ -100,14 +87,16 @@ body {
   background: none;
   border: 2px solid #c4a882;
   color: #c4a882;
-  padding: 0.4rem 1rem; /* Reduzido padding */
+  padding: 0.4rem 1rem;
+  /* Reduzido padding */
   font-weight: 700;
   text-transform: uppercase;
   cursor: pointer;
   margin-left: 1rem;
   border-radius: 8px;
   transition: all 0.3s ease;
-  font-size: 0.9rem; /* Reduzido tamanho */
+  font-size: 0.9rem;
+  /* Reduzido tamanho */
 }
 
 .header nav button:hover {
@@ -117,38 +106,49 @@ body {
 
 /* Main Content */
 .main-content {
-  flex: 1; /* Ocupa o espaço restante */
+  flex: 1;
+  /* Ocupa o espaço restante */
   display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: center;
-  padding: 1rem; /* Reduzido padding */
-  min-height: 0; /* Permite que o flex funcione corretamente */
+  padding: 1rem;
+  /* Reduzido padding */
+  min-height: 0;
+  /* Permite que o flex funcione corretamente */
 }
 
 .main-content h2 {
-  font-size: 2rem; /* Reduzido tamanho */
+  font-size: 2rem;
+  /* Reduzido tamanho */
   color: #c4a882;
-  margin-bottom: 0.5rem; /* Reduzido margin */
+  margin-bottom: 0.5rem;
+  /* Reduzido margin */
   text-transform: uppercase;
   font-weight: 800;
 }
 
 .main-content h3 {
-  font-size: 2.5rem; /* Reduzido tamanho */
+  font-size: 2.5rem;
+  /* Reduzido tamanho */
   color: #fff;
-  margin-bottom: 0.5rem; /* Reduzido margin */
+  margin-bottom: 0.5rem;
+  /* Reduzido margin */
   text-transform: uppercase;
   font-weight: 400;
-  letter-spacing: 1rem; /* Reduzido letter-spacing */
+  letter-spacing: 1rem;
+  /* Reduzido letter-spacing */
   margin-top: 0;
 }
 
 .main-content p {
-  font-size: 1.1rem; /* Reduzido tamanho */
+  font-size: 1.1rem;
+  /* Reduzido tamanho */
   color: #fff;
-  margin-bottom: 2rem; /* Reduzido margin */
-  max-width: 600px; /* Reduzido max-width */
+  margin-bottom: 2rem;
+  /* Reduzido margin */
+  max-width: 600px;
+  /* Reduzido max-width */
   margin-left: auto;
   margin-right: auto;
   line-height: 1.5;
@@ -158,7 +158,8 @@ body {
 .cta-buttons {
   display: flex;
   justify-content: center;
-  gap: 1rem; /* Reduzido gap */
+  gap: 1rem;
+  /* Reduzido gap */
   flex-wrap: wrap;
 }
 
@@ -166,14 +167,17 @@ body {
   background-color: #c4a882;
   color: #111;
   border: none;
-  padding: 0.8rem 2rem; /* Reduzido padding */
+  padding: 0.8rem 2rem;
+  /* Reduzido padding */
   border-radius: 12px;
   font-weight: 700;
-  font-size: 1rem; /* Reduzido tamanho */
+  font-size: 1rem;
+  /* Reduzido tamanho */
   text-transform: uppercase;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  min-width: 140px; /* Reduzido min-width */
+  min-width: 140px;
+  /* Reduzido min-width */
 }
 
 .cta-buttons button.secondary {
@@ -194,13 +198,17 @@ body {
 
 /* Footer */
 .footer {
-  padding: 1rem 0; /* Reduzido padding */
+  padding: 1rem 0;
+  /* Reduzido padding */
   text-align: center;
   color: #999;
-  font-size: 0.8rem; /* Reduzido tamanho */
+  font-size: 0.8rem;
+  /* Reduzido tamanho */
   user-select: none;
-  flex-shrink: 0; /* Evita que o footer encolha */
-  min-height: 60px; /* Altura mínima fixa */
+  flex-shrink: 0;
+  /* Evita que o footer encolha */
+  min-height: 60px;
+  /* Altura mínima fixa */
 }
 
 /* Responsividade */

@@ -3,7 +3,6 @@ import Register from '../components/Register.vue'
 import WelcomePage from '../components/WelcomePage.vue'
 import LoginPage from '../components/Login.vue'
 import Home from '../components/Home.vue'
-import LP from '../components/LP.vue'
 import History from '../components/History.vue'
 
 const routes = [
@@ -36,12 +35,6 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: "/LP",
-    name: "LP",
-    component: LP,
-    meta: { requiresAuth: false }
-  },
-  {
     path: "/history",
     name: "History",
     component: History,
@@ -59,7 +52,7 @@ router.beforeEach(async (to, _from, next) => {
   // Importar a store aqui para evitar problemas de inicialização
   const { useAuthStore } = await import('../stores/auth')
   const authStore = useAuthStore()
-  
+
   // Se a rota requer autenticação
   if (to.meta.requiresAuth) {
     // Verificar se está autenticado
@@ -68,7 +61,7 @@ router.beforeEach(async (to, _from, next) => {
       next('/login')
       return
     }
-    
+
     // Se tem token mas não tem dados do usuário, verificar autenticação
     if (!authStore.isAuthenticated) {
       const isValid = await authStore.checkAuth()
@@ -78,13 +71,13 @@ router.beforeEach(async (to, _from, next) => {
       }
     }
   }
-  
+
   // Se está logado e tenta acessar login/register, redirecionar para home
   if (authStore.isLoggedIn && (to.name === 'Login' || to.name === 'Register')) {
     next('/home')
     return
   }
-  
+
   next()
 })
 

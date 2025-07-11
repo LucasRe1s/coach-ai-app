@@ -15,21 +15,21 @@ async function handleLogin() {
   // Validação mais rigorosa
   const emailTrimmed = email.value.trim()
   const passwordTrimmed = password.value.trim()
-  
+
   if (!emailTrimmed) {
     authStore.error = 'Digite seu email.'
     return
   }
-  
+
   if (!passwordTrimmed) {
     authStore.error = 'Digite sua senha.'
     return
   }
-  
+
 
 
   const success = await authStore.login(emailTrimmed, passwordTrimmed)
-  
+
   if (success) {
     router.push('/home')
   }
@@ -45,18 +45,8 @@ async function handleLogin() {
 
       <div class="login-card">
         <h3>Faça login na sua conta</h3>
-        <input 
-          type="email" 
-          placeholder="E-mail" 
-          v-model="email" 
-          :disabled="authStore.loading" 
-        />
-        <input 
-          type="password" 
-          placeholder="Senha" 
-          v-model="password" 
-          :disabled="authStore.loading" 
-        />
+        <input type="email" placeholder="E-mail" v-model="email" :disabled="authStore.loading" />
+        <input type="password" placeholder="Senha" v-model="password" :disabled="authStore.loading" />
         <button @click="handleLogin" :disabled="authStore.loading" class="login-btn">
           <Spinner v-if="authStore.loading" small />
           <span v-if="authStore.loading">Entrando...</span>
@@ -75,39 +65,19 @@ async function handleLogin() {
 </template>
 
 <style scoped>
-:root {
-  --accent-color: #ffdd00;
-  --error-color: #dc3545;
-  --text-color: #333;
-  --light-text: #666;
-}
-
-/* Reset completo para evitar scroll */
-* {
-  box-sizing: border-box;
-}
-
-/* Fundo global */
-body {
-  background-color: #f5f7fa;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow: hidden; /* Força remoção de scroll global */
-}
-
 .container {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Altura fixa da viewport */
+  height: 100vh;
+  /* Altura fixa da viewport */
   max-width: 1300px;
   margin: 0 auto;
   padding: 0 2rem;
   color: #111;
-  overflow: hidden; /* Remove scroll desnecessário */
-  position: fixed; /* Fixa a posição */
+  overflow: hidden;
+  /* Remove scroll desnecessário */
+  position: fixed;
+  /* Fixa a posição */
   top: 0;
   left: 50%;
   transform: translateX(-50%);
@@ -118,51 +88,67 @@ body {
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
-  flex: 1; /* Ocupa o espaço restante */
+  flex: 1;
+  /* Ocupa o espaço restante */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Centraliza verticalmente */
+  justify-content: center;
+  /* Centraliza verticalmente */
   text-align: center;
-  padding: 1rem; /* Reduzido padding */
-  min-height: 0; /* Permite que o flex funcione corretamente */
+  padding: 1rem;
+  /* Reduzido padding */
+  min-height: 0;
+  /* Permite que o flex funcione corretamente */
 }
 
 .main-content h2 {
-  font-size: 2rem; /* Reduzido tamanho */
+  font-size: 2rem;
+  /* Reduzido tamanho */
   color: #c4a882;
-  margin-bottom: 1rem; /* Reduzido margin */
+  margin-bottom: 1rem;
+  /* Reduzido margin */
   text-transform: uppercase;
-  text-align: center; /* Garante centralização */
-  width: 100%; /* Ocupa toda a largura */
+  text-align: center;
+  /* Garante centralização */
+  width: 100%;
+  /* Ocupa toda a largura */
 }
 
 .login-card {
   background: #fff;
   border: 2px solid #c4a882;
   border-radius: 12px;
-  padding: 1.5rem; /* Reduzido padding */
+  padding: 1.5rem;
+  /* Reduzido padding */
   width: 100%;
-  max-width: 450px; /* Reduzido max-width */
+  max-width: 450px;
+  /* Reduzido max-width */
   display: flex;
   flex-direction: column;
-  gap: 0.8rem; /* Reduzido gap */
+  gap: 0.8rem;
+  /* Reduzido gap */
   box-sizing: border-box;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Sombra sutil */
 }
 
 .login-card h3 {
-  font-size: 1.3rem; /* Reduzido tamanho */
-  margin: 0 0 0.8rem; /* Reduzido margin */
+  font-size: 1.3rem;
+  /* Reduzido tamanho */
+  margin: 0 0 0.8rem;
+  /* Reduzido margin */
   color: #333;
   font-weight: 600;
 }
 
 .login-card input {
-  padding: 0.7rem 1rem; /* Reduzido padding */
+  padding: 0.7rem 1rem;
+  /* Reduzido padding */
   border: 1.5px solid #c4a882;
   border-radius: 6px;
-  font-size: 0.9rem; /* Reduzido tamanho */
+  font-size: 0.9rem;
+  /* Reduzido tamanho */
   transition: border-color 0.3s ease;
 }
 
@@ -174,26 +160,32 @@ body {
 
 .login-btn {
   background-color: #c4a882;
-  color: #fff; /* Texto branco para melhor contraste */
+  color: #fff;
+  /* Texto branco para melhor contraste */
   border: none;
-  padding: 0.8rem 1.5rem; /* Reduzido padding */
+  padding: 0.8rem 1.5rem;
+  /* Reduzido padding */
   border-radius: 6px;
   font-weight: 700;
   text-transform: uppercase;
   cursor: pointer;
   letter-spacing: 0.8px;
   transition: all 0.3s ease;
-  font-size: 0.9rem; /* Reduzido tamanho */
+  font-size: 0.9rem;
+  /* Reduzido tamanho */
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-height: 44px; /* Altura mínima para acessibilidade */
-  box-shadow: 0 2px 4px rgba(196, 168, 130, 0.3); /* Sombra com cor do botão */
+  min-height: 44px;
+  /* Altura mínima para acessibilidade */
+  box-shadow: 0 2px 4px rgba(196, 168, 130, 0.3);
+  /* Sombra com cor do botão */
 }
 
 .login-btn:hover:not(:disabled) {
-  background-color: #a08b5f; /* Cor bege mais escura no hover */
+  background-color: #a08b5f;
+  /* Cor bege mais escura no hover */
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(196, 168, 130, 0.4);
 }
@@ -214,7 +206,8 @@ body {
   color: #dc3545;
   font-weight: 600;
   margin-top: 0.5rem;
-  font-size: 0.9rem; /* Reduzido tamanho */
+  font-size: 0.9rem;
+  /* Reduzido tamanho */
   background-color: rgba(220, 53, 69, 0.1);
   padding: 0.5rem;
   border-radius: 4px;
@@ -222,8 +215,10 @@ body {
 }
 
 .register-text {
-  margin-top: 1rem; /* Reduzido margin */
-  font-size: 0.9rem; /* Reduzido tamanho */
+  margin-top: 1rem;
+  /* Reduzido margin */
+  font-size: 0.9rem;
+  /* Reduzido tamanho */
   color: #666;
 }
 

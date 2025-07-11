@@ -132,7 +132,8 @@ onMounted(() => {
 <style scoped>
 .history-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3d3e46 0%, #4b385e 100%);
+  border-radius: 10px;
   padding: 20px;
   display: flex;
   flex-direction: column;
