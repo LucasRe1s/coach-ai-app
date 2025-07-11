@@ -57,7 +57,7 @@ const authStore = useAuthStore()
 // Determina se deve mostrar o botão de voltar
 const showBackButton = computed(() => {
   // Não mostrar na página de boas-vindas
-  return route.name !== 'Welcome' && route.name !== 'LP'
+  return route.name !== 'Welcome'
 })
 
 // Determina se está na página Home
