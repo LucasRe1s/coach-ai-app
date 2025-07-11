@@ -92,9 +92,7 @@ function goBack() {
   }
 }
 
-function goToHistory() {
-  router.push('/history')
-}
+
 </script>
 
 <style scoped>
