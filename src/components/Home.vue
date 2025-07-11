@@ -55,13 +55,13 @@ async function askQuestion() {
     // Extrai apenas o conteúdo da última mensagem (resposta do assistente)
     const messages = response.data.messages || []
     const lastMessage = messages[messages.length - 1]
-    
+
     if (lastMessage && lastMessage.role === 'assistant') {
       answer.value = lastMessage.content || 'Resposta vazia do servidor.'
     } else {
       answer.value = 'Erro: Não foi possível obter a resposta do assistente.'
     }
-    
+
     // Limpa a pergunta após obter a resposta
     question.value = ''
   } catch (e) {
@@ -113,71 +113,71 @@ function getUserIdFromToken(token: string | null): string | null {
 
 async function updateProfile() {
   editError.value = ''
-  
+
   if (!editForm.value.name.trim() || !editForm.value.email.trim()) {
     editError.value = 'Nome e email são obrigatórios.'
     return
   }
-  
+
   // Se quer alterar a senha, precisa fornecer a senha atual
   if (editForm.value.newPassword && !editForm.value.currentPassword.trim()) {
     editError.value = 'Para alterar a senha, você precisa fornecer a senha atual.'
     return
   }
-  
+
   if (editForm.value.newPassword && editForm.value.newPassword !== editForm.value.confirmPassword) {
     editError.value = 'As senhas não conferem.'
     return
   }
-  
+
   editLoading.value = true
-  
+
   try {
     const updateData: any = {}
-    
+
     // Só enviar campos que foram alterados
     if (editForm.value.name.trim() !== (authStore.user?.name || '')) {
       updateData.name = editForm.value.name.trim()
     }
-    
+
     if (editForm.value.email.trim() !== (authStore.user?.email || '')) {
       updateData.email = editForm.value.email.trim()
     }
-    
+
     // Só enviar password se foi preenchido
     if (editForm.value.currentPassword.trim()) {
       updateData.password = editForm.value.currentPassword
     }
-    
+
     if (editForm.value.newPassword) {
       updateData.newPassword = editForm.value.newPassword
     }
-    
+
     // Se não há nada para atualizar, mostrar mensagem
     if (Object.keys(updateData).length === 0) {
       editError.value = 'Nenhuma alteração foi feita.'
       return
     }
-    
+
     // Extrai o id do usuário do token
     const userId = getUserIdFromToken(authStore.token)
     if (!userId) {
       editError.value = 'Não foi possível identificar o usuário.'
       return
     }
-    
+
     const response = await api.put(`/users/${userId}`, updateData, authStore.token || undefined)
-    
+
     if (!response.ok) {
       editError.value = response.data.message || 'Erro ao atualizar perfil.'
       return
     }
-    
+
     // Atualiza os dados do usuário na store
     if (response.data.user) {
       authStore.user = response.data.user
     }
-    
+
     closeEditModal()
   } catch (e) {
     editError.value = 'Erro ao atualizar perfil. Tente novamente.'
@@ -208,12 +208,7 @@ async function updateProfile() {
       <div class="form-card">
         <div class="provider-selector">
           <label for="provider">Provedor de IA:</label>
-          <select 
-            id="provider" 
-            v-model="selectedProvider" 
-            :disabled="loading"
-            class="provider-select"
-          >
+          <select id="provider" v-model="selectedProvider" :disabled="loading" class="provider-select">
             <option value="groq">Groq (Recomendado)</option>
             <option value="openai">OpenAI GPT</option>
           </select>
@@ -250,69 +245,44 @@ async function updateProfile() {
           <h3>Editar Perfil</h3>
           <button @click="closeEditModal" class="close-btn">&times;</button>
         </div>
-        
+
         <div class="modal-body">
           <div class="form-group">
             <label for="edit-name">Nome</label>
-            <input 
-              id="edit-name"
-              type="text" 
-              v-model="editForm.name" 
-              placeholder="Seu nome"
-              :disabled="editLoading"
-            />
+            <input id="edit-name" type="text" v-model="editForm.name" placeholder="Seu nome" :disabled="editLoading" />
           </div>
-          
+
           <div class="form-group">
             <label for="edit-email">Email</label>
-            <input 
-              id="edit-email"
-              type="email" 
-              v-model="editForm.email" 
-              placeholder="Seu email"
-              :disabled="editLoading"
-            />
+            <input id="edit-email" type="email" v-model="editForm.email" placeholder="Seu email"
+              :disabled="editLoading" />
           </div>
-          
+
           <div class="form-group">
             <label for="edit-current-password">
-              Senha Atual 
+              Senha Atual
               <span v-if="editForm.newPassword" style="color: #dc3545;">*</span>
               <span v-else style="color: #666;">(opcional)</span>
             </label>
-            <input 
-              id="edit-current-password"
-              type="password" 
-              v-model="editForm.currentPassword" 
+            <input id="edit-current-password" type="password" v-model="editForm.currentPassword"
               :placeholder="editForm.newPassword ? 'Senha atual (obrigatória)' : 'Senha atual (opcional)'"
-              :disabled="editLoading"
-            />
+              :disabled="editLoading" />
           </div>
-          
+
           <div class="form-group">
             <label for="edit-new-password">Nova Senha (opcional)</label>
-            <input 
-              id="edit-new-password"
-              type="password" 
-              v-model="editForm.newPassword" 
-              placeholder="Nova senha"
-              :disabled="editLoading"
-            />
+            <input id="edit-new-password" type="password" v-model="editForm.newPassword" placeholder="Nova senha"
+              :disabled="editLoading" />
           </div>
-          
+
           <div class="form-group">
             <label for="edit-confirm-password">Confirmar Nova Senha</label>
-            <input 
-              id="edit-confirm-password"
-              type="password" 
-              v-model="editForm.confirmPassword" 
-              placeholder="Confirme a nova senha"
-              :disabled="editLoading"
-            />
+            <input id="edit-confirm-password" type="password" v-model="editForm.confirmPassword"
+              placeholder="Confirme a nova senha" :disabled="editLoading" />
           </div>
-          
+
           <p v-if="editError" class="error-message">{{ editError }}</p>
-          
+
           <div class="modal-actions">
             <button @click="closeEditModal" :disabled="editLoading" class="cancel-btn">
               Cancelar
@@ -890,13 +860,13 @@ body {
   .user-actions {
     gap: 0.6rem;
   }
-  
+
   .history-btn,
   .edit-profile-btn {
     padding: 0.4rem 0.8rem;
     font-size: 0.75rem;
   }
-  
+
   .user-details span {
     font-size: 0.85rem;
   }

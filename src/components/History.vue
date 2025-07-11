@@ -29,12 +29,8 @@
       </div>
 
       <div v-else class="conversations-list">
-        <div 
-          v-for="conversation in conversationsStore.sortedConversations" 
-          :key="conversation.id"
-          class="conversation-card"
-          @click="viewConversation(conversation)"
-        >
+        <div v-for="conversation in conversationsStore.sortedConversations" :key="conversation.id"
+          class="conversation-card" @click="viewConversation(conversation)">
           <div class="conversation-header">
             <h3 class="conversation-title">
               {{ conversation.title || 'Conversa sem título' }}
@@ -43,11 +39,11 @@
               {{ formatDate(conversation.created_at) }}
             </span>
           </div>
-          
+
           <div class="conversation-preview">
             <p>{{ truncateMessage(conversation.last_message || conversation.first_message) }}</p>
           </div>
-          
+
           <div class="conversation-meta">
             <span class="message-count">
               {{ conversation.message_count || 0 }} mensagens
@@ -67,23 +63,19 @@
           <h3>{{ selectedConversation?.title || 'Conversa' }}</h3>
           <button @click="closeMessagesModal" class="close-btn">&times;</button>
         </div>
-        
+
         <div class="modal-body">
           <div v-if="messagesLoading" class="loading-container">
             <Spinner />
             <p>Carregando mensagens...</p>
           </div>
-          
+
           <div v-else-if="conversationsStore.messages.length === 0" class="empty-messages">
             <p>Nenhuma mensagem encontrada.</p>
           </div>
-          
+
           <div v-else class="messages-list">
-            <div
-              v-for="message in filteredMessages"
-              :key="message.id"
-              :class="['message', `message-${message.role}`]"
-            >
+            <div v-for="message in filteredMessages" :key="message.id" :class="['message', `message-${message.role}`]">
               <div class="message-header">
                 <span class="message-role">
                   {{ message.role === 'user' ? 'Você' : 'Coach AI' }}
@@ -141,10 +133,10 @@ const formatDate = (dateString: string) => {
 
 const formatDuration = (duration?: number) => {
   if (!duration) return ''
-  
+
   const minutes = Math.floor(duration / 60)
   const seconds = duration % 60
-  
+
   if (minutes > 0) {
     return `${minutes}m ${seconds}s`
   }
@@ -166,7 +158,7 @@ const viewConversation = async (conversation: any) => {
   selectedConversation.value = conversation
   showMessagesModal.value = true
   messagesLoading.value = true
-  
+
   try {
     console.log('Abrindo conversa com id:', conversation.id)
     await conversationsStore.fetchConversationMessages(conversation.id)
@@ -381,7 +373,8 @@ onMounted(() => {
   color: #888;
 }
 
-.message-count, .conversation-duration {
+.message-count,
+.conversation-duration {
   background: #e9ecef;
   padding: 5px 12px;
   border-radius: 15px;
@@ -393,42 +386,42 @@ onMounted(() => {
   .history-container {
     padding: 10px;
   }
-  
+
   .history-content {
     margin-top: 10px;
     border-radius: 15px;
   }
-  
+
   .history-header {
     padding: 30px 20px;
   }
-  
+
   .history-header h1 {
     font-size: 2rem;
   }
-  
+
   .history-header p {
     font-size: 1rem;
   }
-  
+
   .conversations-list {
     padding: 20px;
   }
-  
+
   .conversation-card {
     padding: 20px;
   }
-  
+
   .conversation-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .conversation-date {
     margin-left: 0;
     margin-top: 8px;
   }
-  
+
   .conversation-meta {
     flex-direction: column;
     align-items: flex-start;
@@ -440,11 +433,11 @@ onMounted(() => {
   .history-header h1 {
     font-size: 1.8rem;
   }
-  
+
   .conversation-title {
     font-size: 1.2rem;
   }
-  
+
   .conversation-preview p {
     font-size: 0.95rem;
   }
@@ -577,25 +570,25 @@ onMounted(() => {
   .modal-overlay {
     padding: 10px;
   }
-  
+
   .modal-content {
     max-height: 90vh;
   }
-  
+
   .modal-header {
     padding: 15px 20px;
   }
-  
+
   .modal-header h3 {
     font-size: 1.3rem;
   }
-  
+
   .modal-body {
     padding: 20px;
   }
-  
+
   .message {
     max-width: 90%;
   }
 }
-</style> 
+</style>
