@@ -16,21 +16,29 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 async function submitForm() {
-  if (!name.value || !email.value || !password.value || !confirmPassword.value) {
+  // Validação mais rigorosa
+  const nameTrimmed = name.value.trim()
+  const emailTrimmed = email.value.trim()
+  const passwordTrimmed = password.value.trim()
+  const confirmPasswordTrimmed = confirmPassword.value.trim()
+  
+  if (!nameTrimmed || !emailTrimmed || !passwordTrimmed || !confirmPasswordTrimmed) {
     authStore.error = 'Por favor, preencha todos os campos.'
     return
   }
-  if (password.value !== confirmPassword.value) {
+  if (passwordTrimmed !== confirmPasswordTrimmed) {
     authStore.error = 'As senhas não conferem.'
     return
   }
 
+
+
   loading.value = true
   try {
     const response = await api.post('/users', {
-      name: name.value,
-      email: email.value,
-      password: password.value,
+      name: nameTrimmed,
+      email: emailTrimmed,
+      password: passwordTrimmed,
     })
 
     if (!response.ok) {

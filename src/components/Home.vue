@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { api } from '../utils/api'
 import Header from './Header.vue'
 import Footer from './Footer.vue'
 import Spinner from './Spinner.vue'
+
+const router = useRouter()
 
 const authStore = useAuthStore()
 const question = ref('')
@@ -76,6 +79,10 @@ function closeEditModal() {
   editError.value = ''
 }
 
+function goToHistory() {
+  router.push('/history')
+}
+
 // Função utilitária para decodificar o token JWT
 function getUserIdFromToken(token: string | null): string | null {
   if (!token) return null;
@@ -96,6 +103,12 @@ async function updateProfile() {
     return
   }
   
+  // Se quer alterar a senha, precisa fornecer a senha atual
+  if (editForm.value.newPassword && !editForm.value.currentPassword.trim()) {
+    editError.value = 'Para alterar a senha, você precisa fornecer a senha atual.'
+    return
+  }
+  
   if (editForm.value.newPassword && editForm.value.newPassword !== editForm.value.confirmPassword) {
     editError.value = 'As senhas não conferem.'
     return
@@ -104,14 +117,30 @@ async function updateProfile() {
   editLoading.value = true
   
   try {
-    const updateData: any = {
-      name: editForm.value.name,
-      email: editForm.value.email,
-      password: editForm.value.currentPassword || '' // Sempre enviar password
+    const updateData: any = {}
+    
+    // Só enviar campos que foram alterados
+    if (editForm.value.name.trim() !== (authStore.user?.name || '')) {
+      updateData.name = editForm.value.name.trim()
+    }
+    
+    if (editForm.value.email.trim() !== (authStore.user?.email || '')) {
+      updateData.email = editForm.value.email.trim()
+    }
+    
+    // Só enviar password se foi preenchido
+    if (editForm.value.currentPassword.trim()) {
+      updateData.password = editForm.value.currentPassword
     }
     
     if (editForm.value.newPassword) {
       updateData.newPassword = editForm.value.newPassword
+    }
+    
+    // Se não há nada para atualizar, mostrar mensagem
+    if (Object.keys(updateData).length === 0) {
+      editError.value = 'Nenhuma alteração foi feita.'
+      return
     }
     
     // Extrai o id do usuário do token
@@ -150,9 +179,14 @@ async function updateProfile() {
     <main class="main-content">
       <div class="user-info">
         <h2>Assistente Musical</h2>
-        <button @click="openEditModal" class="edit-profile-btn">
-          <span>Editar Perfil</span>
-        </button>
+        <div class="user-actions">
+          <button @click="goToHistory" class="history-btn">
+            <span>📚 Histórico</span>
+          </button>
+          <button @click="openEditModal" class="edit-profile-btn">
+            <span>Editar Perfil</span>
+          </button>
+        </div>
       </div>
 
       <div class="form-card">
@@ -212,12 +246,16 @@ async function updateProfile() {
           </div>
           
           <div class="form-group">
-            <label for="edit-current-password">Senha Atual (opcional)</label>
+            <label for="edit-current-password">
+              Senha Atual 
+              <span v-if="editForm.newPassword" style="color: #dc3545;">*</span>
+              <span v-else style="color: #666;">(opcional)</span>
+            </label>
             <input 
               id="edit-current-password"
               type="password" 
               v-model="editForm.currentPassword" 
-              placeholder="Senha atual"
+              :placeholder="editForm.newPassword ? 'Senha atual (obrigatória)' : 'Senha atual (opcional)'"
               :disabled="editLoading"
             />
           </div>
@@ -459,6 +497,13 @@ body {
   text-align: center;
 }
 
+.user-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+  align-items: center;
+}
+
 .user-info h2 {
   margin: 0;
 }
@@ -557,7 +602,27 @@ body {
   /* Permite scroll interno se necessário */
 }
 
-/* Botão Editar Perfil */
+/* Botões de Ação */
+.history-btn {
+  background-color: transparent;
+  color: #c4a882;
+  border: 2px solid #c4a882;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.history-btn:hover {
+  background-color: #c4a882;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
 .edit-profile-btn {
   background-color: #c4a882;
   color: #fff;
@@ -568,7 +633,6 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.8rem;
-  margin-top: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -750,6 +814,16 @@ body {
     min-height: 40px;
   }
 
+  .user-actions {
+    gap: 0.6rem;
+  }
+  
+  .history-btn,
+  .edit-profile-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
+  
   .user-details span {
     font-size: 0.85rem;
   }

@@ -4,4 +4,5 @@ import { createPinia } from 'pinia'
 export const pinia = createPinia()
 
 // Exportar stores para uso global
-export { useAuthStore } from './auth' 
+export { useAuthStore } from './auth'
+export { useConversationsStore } from './conversations' 

@@ -1,7 +1,7 @@
 <template>
   <header class="header">
-    <div class="header-content" :class="{ 'home-layout': isHomePage }">
-      <button @click="goBack" class="back-btn" v-if="showBackButton && !isHomePage">
+    <div class="header-content" :class="{ 'home-layout': isHomePage, 'history-layout': isHistoryPage }">
+      <button @click="goBack" class="back-btn" v-if="showBackButton && !isHomePage && !isHistoryPage">
         ← Voltar
       </button>
       
@@ -13,7 +13,21 @@
         <div class="home-email">
           <span class="user-email">{{ authStore.user?.email }}</span>
         </div>
-        <div class="home-logout">
+        <div class="home-actions">
+          <!-- <button @click="goToHistory" class="history-btn">Histórico</button> -->
+          <button @click="handleLogout" class="logout-btn">Sair</button>
+        </div>
+      </template>
+      
+      <!-- Layout específico para History -->
+      <template v-else-if="isHistoryPage && authStore.isAuthenticated">
+        <div class="history-back">
+          <button @click="goBack" class="back-btn">← Voltar</button>
+        </div>
+        <div class="history-title">
+          <h1 class="logo">Histórico</h1>
+        </div>
+        <div class="history-actions">
           <button @click="handleLogout" class="logout-btn">Sair</button>
         </div>
       </template>
@@ -52,6 +66,11 @@ const isHomePage = computed(() => {
   return route.name === 'Home'
 })
 
+// Determina se está na página History
+const isHistoryPage = computed(() => {
+  return route.name === 'History'
+})
+
 function handleLogout() {
   authStore.logout()
   router.push('/welcome')
@@ -65,10 +84,16 @@ function goBack() {
     router.push('/welcome')
   } else if (route.name === 'Home') {
     router.push('/welcome')
+  } else if (route.name === 'History') {
+    router.push('/home')
   } else {
     // Fallback: voltar para welcome
     router.push('/welcome')
   }
+}
+
+function goToHistory() {
+  router.push('/history')
 }
 </script>
 
@@ -153,6 +178,41 @@ function goBack() {
   gap: 1rem;
 }
 
+/* Layout específico para History */
+.history-layout {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+}
+
+.history-back {
+  justify-self: start;
+  display: flex;
+  align-items: center;
+}
+
+.history-title {
+  justify-self: center;
+}
+
+.history-title .logo {
+  font-size: 2.2rem;
+  margin: 0;
+  color: #c4a882;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* Centralizar botão de sair na página de histórico */
+.history-actions {
+  justify-self: end;
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
 .home-title {
   justify-self: start;
 }
@@ -182,8 +242,50 @@ function goBack() {
   display: block;
 }
 
-.home-logout {
+.home-actions {
   justify-self: end;
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.history-email {
+  justify-self: center;
+  text-align: center;
+}
+
+.history-email .user-email {
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 0.9rem;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+
+
+.history-btn {
+  background-color: transparent;
+  color: #c4a882;
+  border: 2px solid #c4a882;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.history-btn:hover {
+  background-color: #c4a882;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(196, 168, 130, 0.4);
 }
 
 .user-email {
@@ -329,7 +431,38 @@ function goBack() {
     max-width: 100px;
   }
   
-  .home-logout .logout-btn {
+  .home-actions {
+    gap: 0.5rem;
+  }
+  
+  .home-actions .history-btn,
+  .home-actions .logout-btn {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.6rem;
+    min-width: 45px;
+  }
+  
+  /* Layout History específico para mobile */
+  .history-layout {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .history-back {
+    justify-self: center;
+  }
+  
+  .history-title .logo {
+    font-size: 1.2rem;
+  }
+  
+  .history-actions {
+    justify-self: center;
+    gap: 0.5rem;
+  }
+  
+  .history-actions .logout-btn {
     padding: 0.35rem 0.7rem;
     font-size: 0.6rem;
     min-width: 45px;
@@ -385,7 +518,32 @@ function goBack() {
     max-width: 80px;
   }
   
-  .home-logout .logout-btn {
+  .home-actions {
+    gap: 0.4rem;
+  }
+  
+  .home-actions .history-btn,
+  .home-actions .logout-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.55rem;
+    min-width: 40px;
+  }
+  
+  /* Layout History para telas muito pequenas */
+  .history-layout {
+    gap: 0.3rem;
+  }
+  
+  .history-title .logo {
+    font-size: 1.2rem;
+    letter-spacing: 0.3px;
+  }
+  
+  .history-actions {
+    gap: 0.4rem;
+  }
+  
+  .history-actions .logout-btn {
     padding: 0.3rem 0.6rem;
     font-size: 0.55rem;
     min-width: 40px;

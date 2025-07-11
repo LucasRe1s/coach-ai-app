@@ -1,161 +1,172 @@
-# Coach AI - Frontend
+# 🎵 Coach AI - Assistente Musical Inteligente
 
-Aplicação frontend desenvolvida com Vue 3, Pinia e Vue Router para um assistente musical com inteligência artificial.
+[🔗 Acesse a aplicação aqui](https://coach-ai-app-indol.vercel.app/)
+
+Um assistente musical baseado em IA que ajuda músicos e estudantes de música com dúvidas sobre teoria musical, história da musica e muito mais.
 
 ## 🚀 Tecnologias
 
+### Frontend
 - **Vue 3** - Framework JavaScript progressivo
-- **Pinia** - Gerenciamento de estado
-- **Vue Router 4** - Roteamento com guards de autenticação
-- **TypeScript** - Tipagem estática
+- **TypeScript** - Tipagem estática para JavaScript
 - **Vite** - Build tool e dev server
-- **Tailwind CSS** - Framework CSS utilitário
+- **Vue Router** - Roteamento oficial do Vue
+- **Pinia** - Gerenciamento de estado
+- **CSS3** - Estilização customizada
 
-## 📁 Estrutura do Projeto
+## 📋 Pré-requisitos
 
-```
-src/
-├── components/          # Componentes Vue
-│   ├── Header.vue      # Header com logout
-│   ├── Footer.vue      # Footer
-│   ├── Home.vue        # Página principal (protegida)
-│   ├── Login.vue       # Página de login
-│   ├── Register.vue    # Página de registro
-│   ├── WelcomePage.vue # Página de boas-vindas
-│   └── LP.vue          # Landing page
-├── stores/             # Stores Pinia
-│   ├── auth.ts         # Store de autenticação
-│   └── index.ts        # Configuração centralizada
-├── router/             # Configuração de rotas
-│   └── index.ts        # Router com guards
-├── composables/        # Composables Vue
-│   └── useAuth.ts      # Composable de autenticação
-├── utils/              # Utilitários
-│   └── api.ts          # Cliente HTTP centralizado
-├── config/             # Configurações
-│   └── index.ts        # Configurações globais
-├── types/              # Tipos TypeScript
-│   └── auth.d.ts       # Tipos de autenticação
-└── main.ts             # Entry point
+- **Node.js** (versão 18 ou superior)
+- **npm** ou **yarn**
+
+## 🛠️ Instalação e Configuração
+
+### 1. Clone o repositório
+```bash
+git clone https://github.com/LucasRe1s/coach-ai-app
+cd coach-ai-app
 ```
 
-## 🔐 Funcionalidades de Autenticação
-
-### Login
-- Validação de campos
-- Integração com API backend
-- Armazenamento seguro de token
-- Redirecionamento automático
-
-### Registro
-- Validação de formulário
-- Confirmação de senha
-- Integração com API
-
-### Logout
-- Limpeza completa do estado
-- Remoção do token do localStorage
-- Redirecionamento para welcome
-
-### Proteção de Rotas
-- Guards de navegação
-- Verificação automática de autenticação
-- Redirecionamento inteligente
-
-## 🛠️ Instalação e Uso
-
-### Pré-requisitos
-- Node.js 16+
-- npm ou yarn
-
-### Instalação
+### 2. Instale as dependências
 ```bash
 npm install
 ```
 
-### Desenvolvimento
+### 3. Configure as variáveis de ambiente
+Crie um arquivo `.env` na raiz do projeto:
+```env
+VITE_API_URL=http://localhost:3000/
+```
+
+### 4. Configure o backend
+Certifique-se de que o backend está rodando na porta 3000. Se necessário, ajuste a URL no arquivo `.env`.
+
+### 5. Execute o projeto
 ```bash
+# Desenvolvimento
 npm run dev
-```
 
-### Build
-```bash
+# Build para produção
 npm run build
-```
 
-### Preview
-```bash
+# Preview do build
 npm run preview
 ```
 
-## 🔧 Configuração
+## 🎯 Funcionalidades
 
-### Variáveis de Ambiente
-Crie um arquivo `.env` na raiz do projeto:
+### 🔐 Autenticação
+- **Cadastro de usuário** - Criação de conta com nome, email e senha
+- **Login** - Autenticação segura com JWT
+- **Logout** - Encerramento de sessão
+- **Proteção de rotas** - Acesso restrito a usuários autenticados
 
-```env
-VITE_API_URL=http://localhost:3000
+### 👤 Perfil do Usuário
+- **Edição de dados** - Atualização de nome, email e senha
+- **Modal responsivo** - Interface intuitiva para edição
+- **Validação de dados** - Verificação de campos obrigatórios
+
+### 🤖 Assistente Musical
+- **Perguntas sobre música** - Tire dúvidas sobre teoria musical
+- **Respostas em tempo real** - Interface com loading states
+- **Histórico de conversas** - Visualização das respostas anteriores
+
+### 📱 Interface Responsiva
+- **Design mobile-first** - Otimizado para dispositivos móveis
+- **Tema consistente** - Paleta de cores /bege/dourado (#c4a882)
+- **Componentes reutilizáveis** - Header, Footer, Spinner, etc.
+
+## 🏗️ Estrutura do Projeto
+
+```
+coach-ai-app/
+├── src/
+│   ├── components/         # Componentes Vue reutilizáveis
+│   │   ├── Header.vue      # Cabeçalho com navegação
+│   │   ├── Footer.vue      # Rodapé
+│   │   ├── Spinner.vue     # Componente de loading
+│   │   ├── Home.vue        # Página principal
+│   │   ├── Login.vue       # Página de login
+│   │   ├── Register.vue    # Página de cadastro
+│   │   └── WelcomePage.vue # Página de boas-vindas
+│   ├── stores/             # Gerenciamento de estado (Pinia)
+│   │   └── auth.ts         # Store de autenticação
+│   │   └── conversations.ts # Gerencia conversas e mensagens com Pinia
+│   │   └── index.ts        # Configura e exporta o Pinia
+│   ├── composables/        # Hooks 
+│   │   └── index.ts        # autenticação que expõe os estados
+│   ├── config/             # Configuração
+│   │   └── index.ts        # Define a configuração global da aplicação
+│   ├── router/             # Configuração de rotas
+│   │   └── index.ts        # Definição das rotas
+│   ├── utils/              # Utilitários
+│   │   └── api.ts          # Cliente HTTP para API
+│   ├── config/             # Configurações
+│   │   └── index.ts        # Configurações da aplicação
+│   ├── App.vue             # Componente raiz
+│   └── main.ts             # Ponto de entrada
+│   └── style.css           # Estilo global
+├── public/                 # Arquivos estáticos
+├── dist/                   # Build de produção
+├── .env                    # Variáveis de ambiente
+├── package.json            # Dependências e scripts
+├── vite.config.ts          # Configuração do Vite
+└── README.md               # Este arquivo
 ```
 
-### API Backend
-O projeto espera um backend rodando na porta 3000 com os seguintes endpoints:
+## 🌐 Deploy
 
-- `POST /auth` - Login
-- `POST /users` - Registro
-- `GET /verify-token` - Verificação de token
-- `POST /welcome` - Chat com IA (protegido)
-
-## 📱 Rotas
-
-- `/` - Redireciona para `/welcome`
-- `/welcome` - Página de boas-vindas (pública)
-- `/login` - Página de login (pública)
-- `/register` - Página de registro (pública)
-- `/home` - Página principal (protegida)
-- `/LP` - Landing page (pública)
-
-## 🎨 Estilo
-
-O projeto utiliza Tailwind CSS para estilização, com um design moderno e responsivo.
-
-### Cores Principais
-- **Primária**: `#c4a882` (dourado)
-- **Secundária**: `#ffdd00` (amarelo)
-- **Fundo**: `#f5f7fa` (cinza claro)
+### Vercel (Recomendado)
+1. Conecte seu repositório GitHub à Vercel
+2. Configure as variáveis de ambiente:
+   - `VITE_API_URL`: URL do seu backend em produção
+3. Deploy automático a cada push
 
 ## 🔒 Segurança
 
-- Tokens JWT armazenados no localStorage
-- Verificação automática de validade do token
-- Proteção de rotas sensíveis
-- Limpeza automática de dados na sessão
+- **Autenticação JWT** - Tokens seguros para sessões
+- **Validação de dados** - Verificação de entrada do usuário
+- **Proteção de rotas** - Acesso restrito a usuários autenticados
+- **HTTPS** - Comunicação criptografada em produção
 
-## 📝 Desenvolvimento
+## 🎨 Design System
 
-### Adicionando Novas Rotas
-1. Adicione a rota em `src/router/index.ts`
-2. Configure o meta `requiresAuth` conforme necessário
-3. Crie o componente correspondente
+### Cores
+- **Primária**: `#c4a882` (Bege/Dourado)
+- **Secundária**: `#ffdd00` (Amarelo)
+- **Erro**: `#dc3545` (Vermelho)
+- **Sucesso**: `#28a745` (Verde)
 
-### Adicionando Novas Stores
-1. Crie o arquivo da store em `src/stores/`
-2. Exporte a store em `src/stores/index.ts`
-3. Use a store nos componentes
+### Tipografia
+- **Fonte**: Segoe UI, Tahoma, Geneva, Verdana, sans-serif
+- **Tamanhos**: Responsivos (0.8rem - 2.8rem)
 
-### Padrões de Código
-- Use Composition API
-- Utilize TypeScript para tipagem
-- Siga as convenções de nomenclatura
-- Mantenha componentes pequenos e focados
+## 📱 Responsividade
+
+O projeto é totalmente responsivo com breakpoints:
+- **Desktop**: > 768px
+- **Tablet**: 600px - 768px
+- **Mobile**: < 600px
+- **Mobile pequeno**: < 480px
 
 ## 🤝 Contribuição
 
 1. Fork o projeto
-2. Crie uma branch para sua feature
-3. Commit suas mudanças
-4. Push para a branch
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT.
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+## 📞 Suporte
+
+Se você encontrar algum problema ou tiver dúvidas:
+- Abra uma [issue](https://github.com/seu-usuario/coach-ai-app/issues)
+- Entre em contato: lucaasreiis17@gmail.com
+
+---
+
+**Desenvolvido com ❤️ para a comunidade musical**

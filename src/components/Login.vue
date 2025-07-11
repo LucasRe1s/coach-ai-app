@@ -12,12 +12,23 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 async function handleLogin() {
-  if (!email.value.trim() || !password.value.trim()) {
-    authStore.error = 'Preencha todos os campos.'
+  // Validação mais rigorosa
+  const emailTrimmed = email.value.trim()
+  const passwordTrimmed = password.value.trim()
+  
+  if (!emailTrimmed) {
+    authStore.error = 'Digite seu email.'
     return
   }
+  
+  if (!passwordTrimmed) {
+    authStore.error = 'Digite sua senha.'
+    return
+  }
+  
 
-  const success = await authStore.login(email.value, password.value)
+
+  const success = await authStore.login(emailTrimmed, passwordTrimmed)
   
   if (success) {
     router.push('/home')

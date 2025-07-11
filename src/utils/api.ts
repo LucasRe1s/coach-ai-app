@@ -1,83 +1,106 @@
-import { config } from '../config'
+import { config } from "../config";
 
-const API_BASE_URL = config.api.baseUrl
+const API_BASE_URL = config.api.baseUrl;
 
 export const api = {
   async request(endpoint: string, options: RequestInit = {}) {
-    const url = `${API_BASE_URL}${endpoint}`
-    
+    const url = `${API_BASE_URL}${endpoint}`;
+
     const defaultHeaders = {
-      'Content-Type': 'application/json',
-      ...options.headers
-    }
+      "Content-Type": "application/json",
+      ...options.headers,
+    };
 
     const config: RequestInit = {
       ...options,
-      headers: defaultHeaders
-    }
+      headers: defaultHeaders,
+    };
 
     try {
-      const response = await fetch(url, config)
-      
+      const response = await fetch(url, config);
+
       if (!response.ok) {
-        console.error('Resposta não OK:', response.status, response.statusText)
+        console.error("Resposta não OK:", response.status, response.statusText);
       }
-      
-      let data
+
+      let data;
       try {
-        data = await response.json()
+        data = await response.json();
       } catch (jsonError) {
         // Se não conseguir fazer parse do JSON, retorna um objeto com a mensagem de erro
-        console.error('Erro ao fazer parse do JSON:', jsonError)
+        console.error("Erro ao fazer parse do JSON:", jsonError);
         data = {
           message: `Erro no servidor: ${response.status} ${response.statusText}`,
-          error: 'Invalid JSON response'
-        }
+          error: "Invalid JSON response",
+        };
       }
-      
+
       return {
         ok: response.ok,
         status: response.status,
-        data
-      }
+        data,
+      };
     } catch (error) {
-      console.error('API Error:', error)
+      console.error("API Error:", error);
       if (error instanceof Error) {
-        console.error('Detalhes do erro:', {
+        console.error("Detalhes do erro:", {
           message: error.message,
           name: error.name,
-          stack: error.stack
-        })
+          stack: error.stack,
+        });
       }
-      throw error
+      throw error;
     }
   },
 
   // Métodos específicos
   async post(endpoint: string, body: any, token?: string) {
-    const headers: Record<string, string> = {}
+    const headers: Record<string, string> = {};
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     return this.request(endpoint, {
-      method: 'POST',
+      method: "POST",
       headers,
-      body: JSON.stringify(body)
-    })
+      body: JSON.stringify(body),
+    });
   },
 
-
   async put(endpoint: string, body: any, token?: string) {
-    const headers: Record<string, string> = {}
+    const headers: Record<string, string> = {};
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     return this.request(endpoint, {
-      method: 'PUT',
+      method: "PUT",
       headers,
-      body: JSON.stringify(body)
-    })
-  }
-} 
+      body: JSON.stringify(body),
+    });
+  },
+
+  async get(endpoint: string, token?: string) {
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    return this.request(endpoint, {
+      method: "GET",
+      headers,
+    });
+  },
+
+  async delete(endpoint: string, token?: string) {
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    return this.request(endpoint, {
+      method: "DELETE",
+      headers,
+    });
+  },
+};

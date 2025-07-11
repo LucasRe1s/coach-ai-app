@@ -4,6 +4,7 @@ import WelcomePage from '../components/WelcomePage.vue'
 import LoginPage from '../components/Login.vue'
 import Home from '../components/Home.vue'
 import LP from '../components/LP.vue'
+import History from '../components/History.vue'
 
 const routes = [
   {
@@ -39,6 +40,12 @@ const routes = [
     name: "LP",
     component: LP,
     meta: { requiresAuth: false }
+  },
+  {
+    path: "/history",
+    name: "History",
+    component: History,
+    meta: { requiresAuth: true }
   }
 ]
 
