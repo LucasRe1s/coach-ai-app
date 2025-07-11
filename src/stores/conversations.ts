@@ -20,7 +20,7 @@ export interface Message {
   conversation_id: string
   content: string
   role: 'user' | 'assistant'
-  created_at: string
+  timestamp: string
 }
 
 export const useConversationsStore = defineStore('conversations', () => {
@@ -43,7 +43,6 @@ export const useConversationsStore = defineStore('conversations', () => {
   // Actions
   const fetchConversations = async () => {
     if (!authStore.token) {
-      console.error('Token não encontrado')
       error.value = 'Usuário não autenticado'
       return false
     }
@@ -52,68 +51,74 @@ export const useConversationsStore = defineStore('conversations', () => {
     error.value = null
 
     try {
-      // Mock temporário para testar a funcionalidade
-      // TODO: Remover quando o backend estiver implementado
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simula delay da API
-      
-      // Dados mock para teste
-      const mockConversations = [
-        {
-          id: '1',
-          title: 'Como melhorar minha técnica de guitarra',
-          first_message: 'Olá, gostaria de dicas para melhorar minha técnica de guitarra',
-          last_message: 'Obrigado pelas dicas! Vou praticar os exercícios.',
-          message_count: 8,
-          duration: 1200,
-          created_at: '2024-01-15T10:30:00Z',
-          updated_at: '2024-01-15T11:00:00Z',
-          user_id: 'user123'
-        },
-        {
-          id: '2',
-          title: 'Escalas musicais para piano',
-          first_message: 'Quais são as escalas mais importantes para piano?',
-          last_message: 'Perfeito! Agora entendo melhor as escalas.',
-          message_count: 12,
-          duration: 1800,
-          created_at: '2024-01-14T14:20:00Z',
-          updated_at: '2024-01-14T15:30:00Z',
-          user_id: 'user123'
-        },
-        {
-          id: '3',
-          title: 'Composição de músicas',
-          first_message: 'Como começar a compor minhas próprias músicas?',
-          last_message: 'Vou tentar essas técnicas de composição.',
-          message_count: 15,
-          duration: 2400,
-          created_at: '2024-01-13T09:15:00Z',
-          updated_at: '2024-01-13T10:45:00Z',
-          user_id: 'user123'
-        }
-      ]
+      const response = await api.get('/conversations/user', authStore.token)
 
-      conversations.value = mockConversations
-      return true
-
-      // Código original comentado para quando o backend estiver pronto
-      /*
-      const response = await api.get('/conversations', authStore.token)
-
-      console.log('Resposta da API:', response)
-
+      // Remover logs de debug para produção
       if (!response.ok) {
         error.value = response.data.message || 'Erro ao carregar conversas'
-        console.error('Erro na resposta:', response.data)
         return false
       }
 
-      conversations.value = response.data.conversations || []
-      console.log('Conversas carregadas:', conversations.value.length)
+      // Verifica se os dados estão em response.data.conversations ou response.data
+      const conversationsData = response.data.conversations || response.data || []
+      
+      // Mapeia os dados do backend para o formato esperado pelo frontend
+      const mappedConversations = conversationsData.map((conv: any) => ({
+        id: conv.id || conv._id,
+        title: conv.title || conv.first_message.substring(0, 50) + '...',
+        first_message: conv.first_message,
+        last_message: conv.last_message || conv.first_message,
+        message_count: conv.message_count,
+        duration: conv.duration || 0,
+        created_at: conv.created_at,
+        updated_at: conv.updated_at,
+        user_id: conv.user_id
+      }))
+
+      conversations.value = mappedConversations
+
       return true
-      */
     } catch (e) {
-      console.error('Erro ao buscar conversas:', e)
+      error.value = 'Erro de rede. Tente novamente.'
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchConversationMessages = async (conversationId: string) => {
+    if (!authStore.token) return false
+
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await api.get(`/conversations/${conversationId}/messages`, authStore.token)
+
+      // Remover logs de debug para produção
+      if (!response.ok) {
+        error.value = response.data.message || 'Erro ao carregar mensagens'
+        return false
+      }
+
+      // Mapeia as mensagens do backend
+      const messagesData = response.data.messages || response.data || []
+      messages.value = messagesData.map((msg: any) => ({
+        id: msg._id,
+        content: msg.content,
+        role: msg.role,
+        timestamp: msg.timestamp || msg.created_at,
+        conversation_id: conversationId
+      }))
+
+      // Buscar dados da conversa se não estiver carregada
+      const conversation = conversations.value.find(c => c.id === conversationId)
+      if (conversation) {
+        currentConversation.value = conversation
+      }
+      
+      return true
+    } catch (e) {
       error.value = 'Erro de rede. Tente novamente.'
       return false
     } finally {
@@ -144,38 +149,6 @@ export const useConversationsStore = defineStore('conversations', () => {
       console.error('Erro ao criar conversa:', e)
       error.value = 'Erro de rede. Tente novamente.'
       return null
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const fetchConversationMessages = async (conversationId: string) => {
-    if (!authStore.token) return false
-
-    loading.value = true
-    error.value = null
-
-    try {
-      const response = await api.get(`/conversations/${conversationId}/messages`, authStore.token)
-
-      if (!response.ok) {
-        error.value = response.data.message || 'Erro ao carregar mensagens'
-        return false
-      }
-
-      messages.value = response.data.messages || []
-      
-      // Buscar dados da conversa se não estiver carregada
-      const conversation = conversations.value.find(c => c.id === conversationId)
-      if (conversation) {
-        currentConversation.value = conversation
-      }
-      
-      return true
-    } catch (e) {
-      console.error('Erro ao buscar mensagens:', e)
-      error.value = 'Erro de rede. Tente novamente.'
-      return false
     } finally {
       loading.value = false
     }

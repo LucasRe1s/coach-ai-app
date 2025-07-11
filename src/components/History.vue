@@ -59,15 +59,57 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de Mensagens -->
+    <div v-if="showMessagesModal" class="modal-overlay" @click="closeMessagesModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>{{ selectedConversation?.title || 'Conversa' }}</h3>
+          <button @click="closeMessagesModal" class="close-btn">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          <div v-if="messagesLoading" class="loading-container">
+            <Spinner />
+            <p>Carregando mensagens...</p>
+          </div>
+          
+          <div v-else-if="conversationsStore.messages.length === 0" class="empty-messages">
+            <p>Nenhuma mensagem encontrada.</p>
+          </div>
+          
+          <div v-else class="messages-list">
+            <div
+              v-for="message in filteredMessages"
+              :key="message.id"
+              :class="['message', `message-${message.role}`]"
+            >
+              <div class="message-header">
+                <span class="message-role">
+                  {{ message.role === 'user' ? 'Você' : 'Coach AI' }}
+                </span>
+                <span class="message-time">
+                  {{ formatDate(message.timestamp) }}
+                </span>
+              </div>
+              <div class="message-content">
+                {{ message.content }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConversationsStore } from '../stores/conversations'
 import Header from './Header.vue'
 import Spinner from './Spinner.vue'
+import type { Message } from '../stores/conversations'
 
 const router = useRouter()
 const conversationsStore = useConversationsStore()
@@ -109,20 +151,49 @@ const formatDuration = (duration?: number) => {
   return `${seconds}s`
 }
 
+
+
 const truncateMessage = (message: string) => {
   if (!message) return 'Sem mensagens'
   return message.length > 100 ? message.substring(0, 100) + '...' : message
 }
 
-const viewConversation = (conversation: any) => {
-  // Por enquanto, redireciona para home com o ID da conversa
-  // TODO: Implementar visualização detalhada da conversa
-  router.push(`/home?conversation=${conversation.id}`)
+const showMessagesModal = ref(false)
+const selectedConversation = ref<any>(null)
+const messagesLoading = ref(false)
+
+const viewConversation = async (conversation: any) => {
+  selectedConversation.value = conversation
+  showMessagesModal.value = true
+  messagesLoading.value = true
+  
+  try {
+    console.log('Abrindo conversa com id:', conversation.id)
+    await conversationsStore.fetchConversationMessages(conversation.id)
+  } catch (error) {
+    console.error('Erro ao carregar mensagens:', error)
+  } finally {
+    messagesLoading.value = false
+  }
+}
+
+const closeMessagesModal = () => {
+  showMessagesModal.value = false
+  selectedConversation.value = null
+  conversationsStore.clearCurrentConversation()
 }
 
 const goToHome = () => {
   router.push('/home')
 }
+
+const filteredMessages = computed<Message[]>(() => {
+  const msgs = conversationsStore.messages
+  const userMsg = msgs.find(m => m.role === 'user')
+  const assistantMsg = msgs.find(m => m.role === 'assistant')
+  // Retorna apenas mensagens definidas, nunca undefined
+  return [userMsg, assistantMsg].filter((m): m is Message => !!m)
+})
 
 onMounted(() => {
   loadConversations()
@@ -376,6 +447,155 @@ onMounted(() => {
   
   .conversation-preview p {
     font-size: 0.95rem;
+  }
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #c4a882 0%, #d4b892 100%);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 30px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.message {
+  padding: 15px;
+  border-radius: 15px;
+  max-width: 80%;
+}
+
+.message-user {
+  background: #e3f2fd;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.message-assistant {
+  background: #f5f5f5;
+  align-self: flex-start;
+  margin-right: auto;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.message-role {
+  font-weight: 600;
+  color: #333;
+}
+
+.message-time {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.message-content {
+  line-height: 1.5;
+  color: #333;
+  white-space: pre-wrap;
+}
+
+.empty-messages {
+  text-align: center;
+  color: #666;
+  padding: 40px 0;
+}
+
+/* Responsividade do Modal */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 10px;
+  }
+  
+  .modal-content {
+    max-height: 90vh;
+  }
+  
+  .modal-header {
+    padding: 15px 20px;
+  }
+  
+  .modal-header h3 {
+    font-size: 1.3rem;
+  }
+  
+  .modal-body {
+    padding: 20px;
+  }
+  
+  .message {
+    max-width: 90%;
   }
 }
 </style> 

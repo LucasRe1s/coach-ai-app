@@ -17,6 +17,7 @@ const loading = ref(false)
 const showEditModal = ref(false)
 const editLoading = ref(false)
 const editError = ref('')
+const selectedProvider = ref('groq') // Provider padrão
 const editForm = ref({
   name: authStore.user?.name || '',
   email: authStore.user?.email || '',
@@ -36,7 +37,12 @@ async function askQuestion() {
 
   loading.value = true
   try {
-    const response = await api.post('/welcome', { question: question.value }, authStore.token || undefined)
+    const requestData = {
+      message: question.value.trim(),
+      provider: selectedProvider.value // Usa o provider selecionado
+    }
+
+    const response = await api.post('/conversations', requestData, authStore.token || undefined)
 
     if (!response.ok) {
       error.value = response.data.message || 'Erro ao obter resposta.'
@@ -46,7 +52,17 @@ async function askQuestion() {
     // Simula delay para UX
     await new Promise(r => setTimeout(r, 1500))
 
-    answer.value = response.data.answer || 'Resposta vazia do servidor.'
+    // Extrai apenas o conteúdo da última mensagem (resposta do assistente)
+    const messages = response.data.messages || []
+    const lastMessage = messages[messages.length - 1]
+    
+    if (lastMessage && lastMessage.role === 'assistant') {
+      answer.value = lastMessage.content || 'Resposta vazia do servidor.'
+    } else {
+      answer.value = 'Erro: Não foi possível obter a resposta do assistente.'
+    }
+    
+    // Limpa a pergunta após obter a resposta
     question.value = ''
   } catch (e) {
     error.value = 'Erro ao obter resposta. Tente novamente.'
@@ -190,6 +206,19 @@ async function updateProfile() {
       </div>
 
       <div class="form-card">
+        <div class="provider-selector">
+          <label for="provider">Provedor de IA:</label>
+          <select 
+            id="provider" 
+            v-model="selectedProvider" 
+            :disabled="loading"
+            class="provider-select"
+          >
+            <option value="groq">Groq (Recomendado)</option>
+            <option value="openai">OpenAI GPT</option>
+          </select>
+        </div>
+
         <textarea v-model="question" rows="4"
           placeholder="Digite sua pergunta sobre música, ex: 'Como montar uma escala menor harmônica?'"
           :disabled="loading"></textarea>
@@ -428,6 +457,41 @@ body {
   border-color: #ffdd00;
   outline: none;
   box-shadow: 0 0 0 2px rgba(196, 168, 130, 0.2);
+}
+
+.provider-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.provider-selector label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.provider-select {
+  padding: 0.6rem;
+  border: 1.5px solid #c4a882;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.provider-select:focus {
+  outline: none;
+  border-color: #ffdd00;
+  box-shadow: 0 0 0 2px rgba(196, 168, 130, 0.2);
+}
+
+.provider-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .ask-btn {
@@ -806,6 +870,15 @@ body {
     padding: 0.6rem;
     font-size: 0.85rem;
     min-height: 100px;
+  }
+
+  .provider-selector label {
+    font-size: 0.85rem;
+  }
+
+  .provider-select {
+    padding: 0.5rem;
+    font-size: 0.85rem;
   }
 
   .ask-btn {
